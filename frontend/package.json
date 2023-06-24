@@ -1,12 +1,12 @@
 {
   "name": "grokchess-frontend",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "NODE_ENV=development webpack serve --config webpack.dev.config.ts",
-    "build": "NODE_ENV=production webpack --config webpack.prod.config.ts"
+    "start": "webpack serve --env NODE_ENV=development --config webpack.dev.config.ts",
+    "build": "webpack --env NODE_ENV=production --config webpack.prod.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -22,6 +22,7 @@
     "@types/react-dom": "^18.2.6",
     "babel-loader": "^9.1.2",
     "css-loader": "^6.8.1",
+    "dotenv-webpack": "^8.0.1",
     "html-webpack-plugin": "^5.5.3",
     "react-refresh": "^0.14.0",
     "sass": "^1.63.4",
@@ -37,6 +38,7 @@
     "@fortawesome/fontawesome-free": "^6.4.0",
     "mdb-react-ui-kit": "^6.1.0",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.13.0"
   }
 }

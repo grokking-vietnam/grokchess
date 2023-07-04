@@ -1,16 +1,11 @@
 import {
-  MDBCol,
   MDBContainer,
-  MDBIcon,
-  MDBInputGroup,
-  MDBRow,
   MDBNavbar,
   MDBNavbarNav,
   MDBNavbarItem,
 } from "mdb-react-ui-kit";
-import { Fragment } from "react";
 import { Outlet, Routes, Route, Link } from "react-router-dom";
-
+import { Grokchess } from "./components/Grokchess";
 
 function App() {
   return (
@@ -52,39 +47,6 @@ function Home() {
   return (
     <MDBContainer>
       <h2>Welcome to Grokking Lab</h2>
-    </MDBContainer>
-  );
-}
-function Grokchess() {
-  return (
-    <MDBContainer>
-      <MDBRow>
-        <MDBCol>
-          <h1>Grokchess Neo4J Demo</h1>
-        </MDBCol>
-      </MDBRow>
-      <MDBRow>
-        <MDBCol>
-          <form>
-            <MDBInputGroup
-              noBorder
-              size="lg"
-              textBefore={
-                <Fragment>
-                  <MDBIcon fas icon="chess-king" size="2x" />
-                  <MDBIcon fas icon="hashtag" size="2x" />
-                </Fragment>
-              }
-            >
-              <input
-                className="form-control"
-                type="text"
-                placeholder="Enter lichess username"
-              />
-            </MDBInputGroup>
-          </form>
-        </MDBCol>
-      </MDBRow>
     </MDBContainer>
   );
 }

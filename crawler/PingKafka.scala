@@ -5,21 +5,20 @@ import fs2.{ Pipe, Stream }
 
 object Ping extends IOApp.Simple:
 
+  val server = "localhost:9094"
+  val topic = "grokchess2"
+
   val consumerSettings =
     ConsumerSettings[IO, String, String]
       .withAutoOffsetReset(AutoOffsetReset.Earliest)
-      .withBootstrapServers("localhost:9094")
+      .withBootstrapServers(server)
       .withGroupId("group")
 
   val producerSettings =
     ProducerSettings[IO, String, String]
-      .withBootstrapServers("localhost:9094")
-
-  val topic = "grokchess2"
+      .withBootstrapServers(server)
 
   def run: IO[Unit] =
-    def processRecord(record: ConsumerRecord[String, String]): IO[(String, String)] =
-      IO.pure(record.key -> record.value)
 
     val seedStream: Stream[cats.effect.IO, ProducerRecords[String, String]] =
       Stream

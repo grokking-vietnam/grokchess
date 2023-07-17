@@ -1,27 +1,25 @@
+package grok
+
 import cats.syntax.all.*
 import cats.effect.*
-import fs2.data.csv.*
-import fs2.data.csv.generic.semiauto.*
+import fs2.*
 import fs2.io.file.{ Files, Path }
 import de.lhns.fs2.compress.ZstdDecompressor
 
-import cats.effect.{ IO, IOApp }
-import fs2.*
-import fs2.io.file.{ Files, Path }
-import org.http4s.ember.client.EmberClientBuilder
-import org.http4s.client.Client
 import org.http4s.*
 import org.http4s.implicits.*
+import org.http4s.client.Client
+import org.http4s.ember.client.EmberClientBuilder
 
-import chess.*
+import chess.{ Game as ChessGame, * }
 import chess.MoveOrDrop.*
 import chess.format.*
 import chess.format.pgn.{ Move as PgnMove, * }
-import chess.variant.Standard
 
-val uri    = uri"https://database.lichess.org/standard/lichess_db_standard_rated_2023-05.pgn.zst"
-val total  = 1_000_000L
-val output = "games.csv"
+val uri       = uri"https://database.lichess.org/standard/lichess_db_standard_rated_2023-05.pgn.zst"
+val total     = 1_000L
+val output    = "games.csv"
+val minLength = 10
 
 object StreamDatabase extends IOApp.Simple:
 
@@ -38,16 +36,15 @@ object StreamDatabase extends IOApp.Simple:
       .through(Decompressor.decompress)
       .through(text.utf8.decode)
       .through(fs2.text.lines)
-      // .evalTap(IO.println)
       .through(PgnDecoder.decode)
-      .evalTap(x => if x.isLeft then IO.println(x) else IO.unit)
+      // .evalTap(x => if x.isLeft then IO.println(x) else IO.unit)
       .collect:
         case Right(x) => x
-      .through(Games.transform)
-      .through(encodeWithoutHeaders[Games.Csv](fullRows = true))
+      .map(_.toGame)
+      .collect:
+        case Some(x) => x
       .take(total)
-      .through(text.utf8.encode)
-      .through(Files[IO].writeAll(Path(output)))
+      .evalTap(IO.println)
       .compile
       .drain
 
@@ -57,107 +54,25 @@ object StreamDatabase extends IOApp.Simple:
     .use(execute)
 
 object Games:
-  import fs2.data.csv.*
-  import fs2.data.csv.generic.semiauto.*
-
-  val transform: Pipe[IO, ParsedPgn, Csv] =
-    _.map(_.toCsv)
-      .collect:
-        case Some(x) => x
-
-  enum Termination(val id: Int, val name: String):
-    case ClockFlag   extends Termination(0, "Clock flag")
-    case Disconnect  extends Termination(1, "Disconnect")
-    case Resignation extends Termination(2, "Resignation")
-    case Checkmate   extends Termination(3, "Checkmate")
-    case Unknown     extends Termination(4, "Checkmate")
-
-  object Termination:
-    def fromString(str: String): Termination = str match
-      case "Clock flag"  => ClockFlag
-      case "Disconnect"  => Disconnect
-      case "Resignation" => Resignation
-      case "Checkmate"   => Checkmate
-      case _             => Unknown
-
-  case class Player(name: String, rating: Int, ratingDiff: Int)
-  case class Game(
-      id: String,
-      white: Player,
-      black: Player,
-      winner: Color,
-      playedAt: String,
-      clock: String,
-      totalMoves: Int,
-      termination: Termination
-  ):
-    def toCsv: Csv =
-      Csv(
-        id,
-        white.name,
-        white.rating,
-        white.ratingDiff,
-        black.name,
-        black.rating,
-        black.ratingDiff,
-        winner.toInt,
-        playedAt,
-        clock,
-        totalMoves,
-        termination.id
-      )
-
-  extension (c: Color)
-    def toInt = c match
-      case White => 0
-      case Black => 1
-
-  case class Csv(
-      id: String,
-      whiteName: String,
-      whiteRating: Int,
-      whiteRatingDiff: Int,
-      blackName: String,
-      blackRating: Int,
-      blackRatingDiff: Int,
-      winner: Int,
-      playedAt: String,
-      clock: String,
-      totalMoves: Int,
-      termination: Int
-  )
+  extension (c: Color) def asBoolean = c.fold(true, false)
 
   extension (pgn: ParsedPgn)
-    def toCsv: Option[Csv] =
-      pgn.toGame.map(_.toCsv)
-
     def toGame: Option[Game] =
       for
-        id             <- pgn.tags("Site").headOption
-        playedAt       <- pgn.tags("Date")
-        white          <- pgn.tags("White").headOption
-        black          <- pgn.tags("Black").headOption
-        whiteElo       <- pgn.tags("WhiteElo").headOption
-        blackElo       <- pgn.tags("BlackElo").headOption
-        whiteDiff      <- pgn.tags("WhiteRatingDiff").headOption
-        blackDiff      <- pgn.tags("BlackRatingDiff").headOption
-        clock          <- pgn.tags("TimeControl").headOption
-        totalMoves     <- pgn.tree.map(_.size)
-        winner         <- pgn.tags.outcome.map(_.winner).flatten
-        terminationStr <- pgn.tags("Termination").headOption
-        termination = Termination.fromString(terminationStr)
+        id         <- pgn.tags("Site").headOption
+        playedAt   <- pgn.tags("Date")
+        white      <- pgn.tags("White").headOption
+        black      <- pgn.tags("Black").headOption
+        totalMoves <- pgn.tree.map(_.size)
+        winner     <- pgn.tags.outcome.map(_.winner).flatten
+        if totalMoves >= minLength
       yield Game(
         id,
-        Player(white, whiteElo.toInt, whiteDiff.toInt),
-        Player(black, blackElo.toInt, blackDiff.toInt),
-        winner,
-        playedAt,
-        clock,
-        totalMoves.toInt,
-        termination
+        white,
+        black,
+        winner.asBoolean,
+        playedAt
       )
-
-  given RowEncoder[Csv] = deriveRowEncoder
 
 object Decompressor:
   val defaultChunkSize = 1024 * 4
@@ -212,4 +127,4 @@ object PgnDecoder:
   extension (s: String)
     def isTag   = s.startsWith("[")
     def isMoves = s.startsWith("1")
-    def parse   = Parser.full(PgnStr(s)).toEither.leftMap(x => RuntimeException(x.value))
+    def parse   = Parser.full(PgnStr(s)).leftMap(x => RuntimeException(x.value))

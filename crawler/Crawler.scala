@@ -1,5 +1,3 @@
-package grok
-
 import cats.syntax.all.*
 import cats.effect.*
 import fs2.*
@@ -21,7 +19,7 @@ val total     = 1_000L
 val output    = "games.csv"
 val minLength = 10
 
-object StreamDatabase extends IOApp.Simple:
+object Crawler extends IOApp.Simple:
 
   import Games.*
   lazy val request = Request[IO](

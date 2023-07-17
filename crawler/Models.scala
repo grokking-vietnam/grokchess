@@ -1,5 +1,3 @@
-package grok
-
 case class Game(
     id: String,
     white: String,

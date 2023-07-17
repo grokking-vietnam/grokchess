@@ -1,3 +1,5 @@
+package grok
+
 import cats.syntax.all.*
 import cats.effect.*
 import fs2.*
@@ -14,7 +16,8 @@ import chess.MoveOrDrop.*
 import chess.format.*
 import chess.format.pgn.{ Move as PgnMove, * }
 
-val uri       = uri"https://database.lichess.org/standard/lichess_db_standard_rated_2023-05.pgn.zst"
+val uri =
+  uri"https://database.lichess.org/standard/lichess_db_standard_rated_2023-05.pgn.zst"
 val total     = 1_000L
 val output    = "games.csv"
 val minLength = 10
@@ -82,17 +85,28 @@ object PgnDecoder:
   import chess.format.pgn.*
 
   val decodeToPgnStr: Pipe[IO, String, String] =
-    def go(s: Stream[IO, String], p: Option[PartialPgnState]): Pull[IO, String, Unit] =
+    def go(
+        s: Stream[IO, String],
+        p: Option[PartialPgnState]
+    ): Pull[IO, String, Unit] =
       s.pull.uncons1.flatMap:
         case Some((line, tl)) =>
           p match
             case None =>
               if line.isEmpty then go(tl, None)
               else if line.isTag then go(tl, Some(Tags(line)))
-              else Pull.raiseError[IO](RuntimeException(s"Pgn has to start with tag $line"))
+              else
+                Pull.raiseError[IO](
+                  RuntimeException(s"Pgn has to start with tag $line")
+                )
             case Some(partial) =>
               partial.take(line) match
-                case Left(err) => Pull.raiseError(RuntimeException(s"Error parsing pgn: $err with state: $partial"))
+                case Left(err) =>
+                  Pull.raiseError(
+                    RuntimeException(
+                      s"Error parsing pgn: $err with state: $partial"
+                    )
+                  )
                 case Right(next) =>
                   if next.isInstanceOf[Done] then Pull.output1(next.value) >> go(tl, None)
                   else go(tl, Some(next))

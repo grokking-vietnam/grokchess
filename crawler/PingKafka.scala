@@ -6,7 +6,7 @@ import fs2.{ Pipe, Stream }
 object Ping extends IOApp.Simple:
 
   val server = "localhost:9094"
-  val topic  = "grokchess2"
+  val topic  = "test-topic"
 
   val consumerSettings =
     ConsumerSettings[IO, String, String]

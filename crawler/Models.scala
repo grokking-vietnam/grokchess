@@ -1,5 +1,3 @@
-package grok
-
 import io.circe.Codec
 import io.circe.generic.auto.*
 

@@ -6,8 +6,8 @@ Streaming games from [Lichess Database](https://database.lichess.org)
 
 Install [scala-cli](https://scala-cli.virtuslab.org/install)
 
-    sc run . --main-class Crawler
+    scala-cli run . --main-class Crawler
 
 Test Kafka
 
-    sc run . --main-class Ping
+    scala-cli run . --main-class Ping

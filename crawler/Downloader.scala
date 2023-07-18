@@ -43,18 +43,21 @@ object Downloader:
     // .evalTap(IO.println)
 
 object Converter:
+  private val prefixSize = "https://lichess.org/".length
+
   extension (c: Color) def asBoolean = c.fold(true, false)
 
   extension (pgn: ParsedPgn)
     def toGame: Option[Game] =
       for
-        id         <- pgn.tags("Site").headOption
+        id         <- pgn.tags("Site").headOption.map(_.drop(prefixSize))
         playedAt   <- pgn.tags("Date")
         white      <- pgn.tags("White").headOption
         black      <- pgn.tags("Black").headOption
         totalMoves <- pgn.tree.map(_.size)
         winner     <- pgn.tags.outcome.map(_.winner).flatten
         if totalMoves >= minLength
+        if id.length == 8
       yield Game(
         id,
         white,

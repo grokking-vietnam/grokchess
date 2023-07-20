@@ -2,7 +2,7 @@ from confluent_kafka import Producer
 
 
 # Kafka broker configuration
-bootstrap_servers = 'localhost:29092'
+bootstrap_servers = 'localhost:9094'
 topic = 'test_topic'
 
 # Test message to be sent

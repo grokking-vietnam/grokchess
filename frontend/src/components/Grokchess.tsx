@@ -3,40 +3,44 @@ import {
   MDBContainer,
   MDBIcon,
   MDBInputGroup,
+  MDBListGroup,
+  MDBListGroupItem,
   MDBRow,
   MDBSpinner,
 } from 'mdb-react-ui-kit';
 import { Fragment, useState } from 'react';
+type Relationship = {
+  start: string;
+  end: string;
+  type: string;
+  id: string;
+};
+type Path = Relationship[];
 
-type Games = [
-  {
-    name: string;
-  },
-  {
-    name: string;
-  }
-];
 export function Grokchess() {
   const [isLoading, setLoading] = useState(false);
-  const [games, setGames] = useState([]);
+  const [paths, setPaths] = useState([]);
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const formData = new FormData(form);
     const apiUrl = process.env.API_URL!;
     setLoading(true);
-    fetch(`${apiUrl}/games`, {
+    fetch(`${apiUrl}/path`, {
       method: form.method,
       body: formData,
     })
       .then((res) => res.json())
       .then((res) => {
-        setGames(
-          res.map((game: Games) => {
+        setPaths(
+          res.map((path: Path, i: number) => {
             return (
-              <p>
-                Game 1: {game[0].name}, Game 2: {game[1].name}
-              </p>
+              <MDBListGroupItem key={crypto.randomUUID()} noBorders color='primary' className='px-3 mb-2 rounded-3'>
+                <b>Path: #{i + 1}</b>
+                {path.map((rel: Relationship) => {
+                  return <p key={rel.id}>{rel.start} {rel.type} {rel.end}</p>;
+                })}
+              </MDBListGroupItem>
             );
           })
         );
@@ -70,7 +74,7 @@ export function Grokchess() {
                 className='form-control'
                 type='text'
                 name='username'
-                placeholder='Enter lichess username'
+                placeholder='Enter lichess username: #username1, #username2'
               />
             </MDBInputGroup>
           </form>
@@ -89,7 +93,9 @@ export function Grokchess() {
                 </MDBSpinner>
               </div>
             ) : (
-              games
+              <MDBListGroup>
+                {paths}
+              </MDBListGroup>
             )}
           </div>
         </MDBCol>

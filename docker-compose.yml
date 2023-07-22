@@ -3,13 +3,15 @@ services:
 
   crawler:
     image: hainq15/grokchess-crawler:latest
+    environment:
+      - KAFKA_SERVER=kafka:9094
 
-  ingestor:
-    build:
-      context: "./ingestor"
-      dockerfile: "Dockerfile"
-    volumes:
-      - ./html:/var/www/html
+  # ingestor:
+  #   build:
+  #     context: "./ingestor"
+  #     dockerfile: "Dockerfile"
+  #   volumes:
+  #     - ./html:/var/www/html
 
   kafka:
     container_name: kafka
@@ -26,9 +28,9 @@ services:
       - KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP=CONTROLLER:PLAINTEXT,EXTERNAL:PLAINTEXT,PLAINTEXT:PLAINTEXT
       - KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE=true
 
-networks:
-  grokchess:
-    driver: bridge
+# networks:
+#   grokchess:
+#     driver: bridge
 
 volumes:
   kafka_data:

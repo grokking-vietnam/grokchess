@@ -6,7 +6,8 @@ import fs2.kafka.*
 
 object Producer:
 
-  private val server = "http://localhost:9094"
+  // get server from environment variable
+  private val server = sys.env.getOrElse("KAFKA_SERVER", "localhost:9094")
   private val topic  = "lichess-games"
 
   private val producerSettings =

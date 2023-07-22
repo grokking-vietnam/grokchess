@@ -136,3 +136,6 @@ __pycache__
 # kafka container volume
 kafka_data/
 .scala-build/
+
+# crawler build
+.bsp

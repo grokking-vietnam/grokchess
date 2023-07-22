@@ -11,3 +11,9 @@ Install [scala-cli](https://scala-cli.virtuslab.org/install)
 Test Kafka
 
     scala-cli run . --main-class Ping
+
+Build Docker image
+
+``` bash
+bash build_image.sh
+```

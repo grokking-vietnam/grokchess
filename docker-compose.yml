@@ -4,7 +4,7 @@ services:
   crawler:
     image: hainq15/grokchess-crawler:latest
     environment:
-      - KAFKA_SERVER=kafka:9094
+      - KAFKA_SERVER=kafka:9092
 
   # ingestor:
   #   build:

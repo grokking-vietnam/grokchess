@@ -2,10 +2,7 @@ from confluent_kafka import Consumer
 
 # Kafka broker configuration
 bootstrap_servers = 'localhost:9094'
-topic = 'test_topic'
-
-# Test message to be sent
-message = 'Hello, Kafka!'
+topic = 'lichess-games'
 
 
 def consume_message():
@@ -21,16 +18,19 @@ def consume_message():
 
     # Consume messages
     while True:
-        msg = consumer.poll(1.0)
-        if msg is None:
-            continue
-        if msg.error():
-            print(f'Consumer error: {msg.error()}')
-            continue
+        # catch keyboard interrupt
+        try:
+            msg = consumer.poll(1.0)
+            if msg is None:
+                continue
+            if msg.error():
+                print(f'Consumer error: {msg.error()}')
+                continue
 
-        # Print received message
-        print(f'Received message: {msg.value().decode()}')
-        break
+            # Print received message
+            print(f'Received message: {msg.value().decode()}')
+        except KeyboardInterrupt:
+            break
 
     # Close the consumer
     consumer.close()

@@ -4,11 +4,9 @@ import scala.concurrent.duration.*
 import io.circe.syntax.*
 import fs2.kafka.*
 
-object Producer:
+class Producer(server: String):
 
-  // get server from environment variable
-  private val server = sys.env.getOrElse("KAFKA_SERVER", "localhost:9094")
-  private val topic  = "lichess-games"
+  private val topic = "lichess-games"
 
   private val producerSettings =
     ProducerSettings[IO, String, String]

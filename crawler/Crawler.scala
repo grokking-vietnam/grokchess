@@ -8,11 +8,15 @@ import org.http4s.ember.client.EmberClientBuilder
 object Crawler extends IOApp.Simple:
 
   def execute(client: Client[IO]) =
-    Downloader
-      .download(client)
-      .through(Producer.produce)
-      .compile
-      .drain
+    Config.load.flatMap: config =>
+      val downloader = Downloader(config.downloader, client)
+      val producer   = Producer(config.kafkaServer)
+
+      IO.println(s"Starting crawler $config") *>
+        downloader.download
+          .through(producer.produce)
+          .compile
+          .drain
 
   val run: IO[Unit] = EmberClientBuilder
     .default[IO]

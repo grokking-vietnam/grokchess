@@ -5,3 +5,5 @@
 //> using dep com.github.fd4s::fs2-kafka:3.0.1
 //> using dep org.lichess::scalachess:15.6.3
 //> using dep io.circe::circe-generic:0.14.5
+//> using dep is.cir::ciris:3.2.0
+//> using dep is.cir::ciris-http4s:3.2.0

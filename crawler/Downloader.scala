@@ -17,21 +17,22 @@ val uri       = uri"https://database.lichess.org/standard/lichess_db_standard_ra
 val total     = 100L
 val minLength = 10
 
-object Downloader:
+class Downloader(config: DownloaderConfig, client: Client[IO]):
 
   import Converter.*
   lazy val request = Request[IO](
     method = Method.GET,
-    uri = uri
+    uri = config.url
   )
 
-  def download(client: Client[IO]) =
+  def download =
     client
       .stream(request)
       .switchMap(_.body)
       .through(Decompressor.decompress)
       .through(text.utf8.decode)
       .through(fs2.text.lines)
+      .through(skipLines)
       .through(PgnDecoder.decode)
       // .evalTap(x => if x.isLeft then IO.println(x) else IO.unit)
       .collect:
@@ -39,8 +40,12 @@ object Downloader:
       .map(_.toGame)
       .collect:
         case Some(x) => x
-      .take(total)
+      .through(take)
     // .evalTap(IO.println)
+
+  def skipLines[A]: Pipe[IO, A, A] = in => config.skipLines.fold(in)(n => in.drop(n))
+
+  def take[A]: Pipe[IO, A, A] = in => config.totalGames.fold(in)(n => in.take(n))
 
 object Converter:
   private val prefixSize = "https://lichess.org/".length

@@ -21,7 +21,7 @@ MERGE (n:User {name: $winner})
 MERGE (m:User {name: $loser})
 WITH n, m
 MERGE (n)-[r:WON]->(m)
-SET r.white = $white, r.black=$black
+SET r.white = $white, r.black = $black
 RETURN r
 """
 

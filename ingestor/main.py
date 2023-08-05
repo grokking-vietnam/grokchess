@@ -38,7 +38,7 @@ def upsert_data_to_neo4j(tx, data):
         data["loser"] = data["white"]
 
     tx.run(upsert_query, **data)
-    print(f"Upserted data: {data["winner"]} won against {data["loser"]}")
+    print(f"Upserted data: {data['winner']} won against {data['loser']}")
 
 
 def consume_from_kafka():
@@ -79,7 +79,6 @@ def consume_from_kafka():
                         data["loser"] = data["white"]
 
                     session.run(upsert_query, **data)
-                    print(f"Upserted data: {data["winner"]} won against {data["loser"]}")
 
                 except Exception as e:
                     print(f"Error processing message: {e}")

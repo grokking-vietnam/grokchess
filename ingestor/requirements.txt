@@ -1,3 +1,4 @@
-pydantic==2.0.0
+pydantic==2.1.0
+pydantic-settings
 confluent-kafka==2.1.1
 graphdatascience==1.7.0

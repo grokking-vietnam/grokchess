@@ -1,16 +1,11 @@
+import json
+
 from confluent_kafka import Consumer
 from neo4j import GraphDatabase
 from settings import Settings
 
 cfg = Settings()
 
-# Kafka consumer configuration
-conf = {
-    "bootstrap.servers": "your_kafka_bootstrap_servers",
-    "group.id": "your_consumer_group_id",
-    "auto.offset.reset": "earliest",
-    "enable.auto.commit": False
-}
 
 # Neo4j database connection
 uri = cfg.NEO4J_URI
@@ -18,27 +13,47 @@ username = cfg.NEO4J_USER
 password = cfg.NEO4J_PASSWORD
 
 # Kafka topic to consume from
-topic = "grokchess"
+topic = "lichess-games"
+
+# MERGE (m:User { name: "$loser" })
+upsert_query = """
+MERGE (n:User {name: $winner})
+MERGE (m:User {name: $loser})
+WITH n, m
+MERGE (n)-[r:WON]->(m)
+SET r.white = $white, r.black=$black
+RETURN r
+"""
 
 
 def upsert_data_to_neo4j(tx, data):
     # Perform upsert logic with Neo4j
     # Modify this function to suit your specific upsert logic
-    # Example:
-    query = """
-    MERGE (n:YourLabel {key: $key})
-    SET n.value = $value
-    """
-    tx.run(query, key=data["key"], value=data["value"])
+
+    if data["winner"]:
+        data["winner"] = data["white"]
+        data["loser"] = data["black"]
+    else:
+        data["winner"] = data["black"]
+        data["loser"] = data["white"]
+
+    tx.run(upsert_query, **data)
+    print(f"Upserted data: {data["winner"]} won against {data["loser"]}")
 
 
 def consume_from_kafka():
-    consumer = Consumer(conf)
+    consumer = Consumer({
+        "bootstrap.servers": cfg.KAFKA_BOOTSTRAP_SERVERS,
+        "group.id": "test_consumer_group",
+        "auto.offset.reset": "earliest",
+        "enable.auto.commit": False
+    })
 
     # Subscribe to the Kafka topic
     consumer.subscribe([topic])
 
     driver = GraphDatabase.driver(uri, auth=(username, password))
+    driver.verify_authentication()
 
     try:
         with driver.session() as session:
@@ -54,9 +69,17 @@ def consume_from_kafka():
 
                 # Process the Kafka message
                 try:
-                    data = eval(message.value().decode("utf-8"))
+                    data = json.loads(message.value().decode())
 
-                    session.write_transaction(upsert_data_to_neo4j, data)
+                    if data["winner"]:
+                        data["winner"] = data["white"]
+                        data["loser"] = data["black"]
+                    else:
+                        data["winner"] = data["black"]
+                        data["loser"] = data["white"]
+
+                    session.run(upsert_query, **data)
+                    print(f"Upserted data: {data["winner"]} won against {data["loser"]}")
 
                 except Exception as e:
                     print(f"Error processing message: {e}")

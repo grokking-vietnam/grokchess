@@ -3,7 +3,7 @@ from confluent_kafka import Producer
 
 # Kafka broker configuration
 bootstrap_servers = 'localhost:9094'
-topic = 'test_topic'
+topic = 'test-topic'
 
 # Test message to be sent
 message = 'Hello, Kafka!'

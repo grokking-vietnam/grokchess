@@ -25,7 +25,7 @@ def getPath():
     user1, *user2 = users.split(',')
     user2 = user2[0].lstrip() if user2 and user2[0] else 'kifer35'
     records,_,_ = driver.execute_query(query("""
-    MATCH p=(n:User {name: $user1})-[r*1..10]-(m:User {name: $user2})
+    MATCH p=shortestPath((n:User {name: $user1})-[r*1..20]->(m:User {name: $user2}))
     RETURN p LIMIT $limit
     """), limit=request.args.get('limit', 100, type=int), user1=user1, user2=user2)
     paths = [[{ 'start': relationship.start_node['name'], 'end': relationship.end_node['name'], 'type': relationship.type, 'id': relationship.element_id} for relationship in record.value('p')] for record in records]

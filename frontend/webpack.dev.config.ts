@@ -3,6 +3,8 @@ import ReactRefreshWebpackPlugin from '@pmmmwh/react-refresh-webpack-plugin';
 import { merge } from 'webpack-merge';
 import { Configuration as WebpackConfig } from 'webpack';
 import { Configuration as WebpackDevServerConfig } from 'webpack-dev-server';
+import Dotenv from 'dotenv-webpack';
+
 import common from './webpack.common.config';
 
 type Configuration = WebpackConfig & {
@@ -11,7 +13,9 @@ type Configuration = WebpackConfig & {
 
 const devConfig: Configuration = {
   mode: 'development',
-  plugins: [new ReactRefreshWebpackPlugin()].filter(Boolean),
+  plugins: [new Dotenv({
+    path: './.env.development.local'
+  }), new ReactRefreshWebpackPlugin()].filter(Boolean),
   devtool: 'inline-source-map', // eval-source-map
   devServer: {
     static: path.join(__dirname, 'dist'),

@@ -1,7 +1,6 @@
 import path from 'path';
 import HtmlWebpackPlugin from 'html-webpack-plugin';
 import webpack, { Configuration as WebpackConfig } from 'webpack';
-import Dotenv from 'dotenv-webpack';
 
 const config: WebpackConfig = {
   entry: './index.tsx',
@@ -36,9 +35,6 @@ const config: WebpackConfig = {
     extensions: ['.tsx', '.ts', '.js'],
   },
   plugins: [
-    new Dotenv({
-      path: './.env'
-    }),
     new webpack.ProgressPlugin(),
     new HtmlWebpackPlugin({
       template: 'index.html',

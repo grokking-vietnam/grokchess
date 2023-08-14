@@ -35,7 +35,7 @@ export function Grokchess() {
         setPaths(
           res.map((path: Path, i: number) => {
             return (
-              <MDBListGroupItem key={crypto.randomUUID()} noBorders color='primary' className='px-3 mb-2 rounded-3'>
+              <MDBListGroupItem key={i} noBorders color='primary' className='px-3 mb-2 rounded-3'>
                 <b>Path: #{i + 1}</b>
                 {path.map((rel: Relationship) => {
                   return <p key={rel.id}>{rel.start} {rel.type} {rel.end}</p>;

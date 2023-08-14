@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "cross-env NODE_ENV=development webpack serve --config webpack.dev.config.ts",
-    "build": "cross-env  NODE_ENV=production webpack --config webpack.prod.config.ts"
+    "build": "cross-env NODE_ENV=production webpack --config webpack.prod.config.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +21,7 @@
     "@types/react": "^18.2.13",
     "@types/react-dom": "^18.2.6",
     "babel-loader": "^9.1.2",
+    "cross-env": "^7.0.3",
     "css-loader": "^6.8.1",
     "dotenv-webpack": "^8.0.1",
     "html-webpack-plugin": "^5.5.3",

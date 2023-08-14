@@ -5,11 +5,10 @@ from json import dumps
 from .util import query, serialize_member
 
 @app.route('/')
-@app.route('/index')
 def index():
-    return "Hello, World!"
+    return app.send_static_file('index.html')
 
-@app.route('/games', methods=['POST', 'GET'])
+@app.route('/api/games', methods=['POST', 'GET'])
 def getGames():
     records,_,_ = driver.execute_query(query("""
     MATCH (n:User)-[*3..4]-(m:User)
@@ -19,7 +18,7 @@ def getGames():
     a = [[serialize_member(val) for val in record] for record in records]
     return Response(dumps(a), mimetype='application/json')
 
-@app.route('/path', methods=['POST'])
+@app.route('/api/path', methods=['POST'])
 def getPath():
     users = request.form.get('username') if request.form.get('username') else 'jakconq, kifer35'
     user1, *user2 = users.split(',')

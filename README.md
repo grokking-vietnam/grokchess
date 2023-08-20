@@ -1,6 +1,6 @@
 # Grokchess
 
-This small project is a proof of concept of (Neo4j)[https://neo4j.com/]. We clone and extend functionality of [freopen.org](https://lichess.org/@/freopen/blog/carlsen-number-for-every-lichess-user/DzjHeprV) by adding ability to find shortest path between 2 any players.
+This small project is a proof of concept of [Neo4j](https://neo4j.com/). We clone and extend functionality of [freopen.org](https://lichess.org/@/freopen/blog/carlsen-number-for-every-lichess-user/DzjHeprV) by adding ability to find shortest path between 2 any players.
 
 ### Demo:
 [Link to project](http://neo4j-demo.lab.grokking.org/)  
